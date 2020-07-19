@@ -19,6 +19,12 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>com.lp</groupId>
+            <artifactId>common</artifactId>
+            <version>1.0</version>
+        </dependency>
+
         <!-- 暴露springboot相关的endpoint便于监控应用状态 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
