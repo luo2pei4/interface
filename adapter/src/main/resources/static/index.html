@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Interface Maintenance</title>
+        <script src="../js/vue.min.js"></script>
+        <script src="../js/axios.min.js"></script>
+    </head>
+    <body>
+        <div id="configs">
+            <div>{{msg}}</div>
+            <div>
+                <select name="sourceType" v-model="sourceType">
+                    <option selected value="">选择外部数据源获取方式</option>
+                    <option value="1">ActiveMQ</option>
+                    <option value="2">RabbitMQ</option>
+                    <option value="3">Kafka</option>
+                </select>
+            </div>
+            <div v-if="sourceType == '1'">
+                ActiveMQ
+            </div>
+            <div v-else-if="sourceType == '2'">
+                <div><input type="text" id="rabbitHost" name="rabbitHost" v-model="rabbitHost" placeholder="host" /></div>
+                <div><input type="text" id="rabbitPort" name="rabbitPort" v-model="rabbitPort" placeholder="port" size="5"/></div>
+                <div><input type="text" id="rabbitExchange" name="rabbitExchange" v-model="rabbitExchange" placeholder="exchange" /></div>
+                <div><input type="text" id="rabbitQueue" name="rabbitQueue" v-model="rabbitQueue" placeholder="queue" /></div>
+                <div><input type="text" id="rabbitVirtualHost" name="rabbitVirtualHost" v-model="rabbitVirtualHost" placeholder="virtualhost" /></div>
+                <div><input type="text" id="rabbitRoutingKey" name="rabbitRoutingKey" v-model="rabbitRoutingKey" placeholder="routingkey" /></div>
+                <div><input type="text" id="rabbitUserId" name="rabbitUserId" v-model="rabbitUserId" placeholder="user" /></div>
+                <div><input type="text" id="rabbitPassword" name="rabbitPassword" v-model="rabbitPassword" placeholder="password" /></div>
+            </div>
+            <div v-else-if="sourceType == '3'">
+                Kafka
+            </div>
+            <div v-if="sourceType == '1' || sourceType == '2' || sourceType == '3'">
+                <div v-if="serviceControlFlag == '2'"><button v-on:click="start">启动服务</button></div>
+                <div v-else-if="serviceControlFlag == '1'"><button v-on:click="resume">恢复服务</button></div>
+                <div v-else-if="serviceControlFlag == '0'"><button v-on:click="pause">暂停服务</button></div>
+            </div>
+        </div>
+    </body>
+    <script lang="javascript">
+        var app = new Vue({
+            el:"#configs",
+            data:{
+                sourceType: '',
+                rabbitHost: '',
+                rabbitPort: '',
+                rabbitExchange: '',
+                rabbitQueue: '',
+                rabbitVirtualHost: '',
+                rabbitRoutingKey: '',
+                rabbitUserId: '',
+                rabbitPassword: '',
+                serviceControlFlag: '',
+                msg: ''
+            },
+            methods:{
+                start: function(event) {
+                    var _this = this;
+                    axios.post('/maintenance/start', {
+                        sourceType: this.sourceType,
+                        rabbitHost: this.rabbitHost,
+                        rabbitPort: this.rabbitPort,
+                        rabbitExchange: this.rabbitExchange,
+                        rabbitQueue: this.rabbitQueue,
+                        rabbitVirtualHost: this.rabbitVirtualHost,
+                        rabbitRoutingKey: this.rabbitRoutingKey,
+                        rabbitUserId: this.rabbitUserId,
+                        rabbitPassword: this.rabbitPassword
+                    }).then(function (response) {
+                        _this.msg = response.data.msg;
+                        _this.serviceControlFlag = response.data.serviceControlFlag;
+                    }).catch(function (error) {
+                        alert(error.response);
+                    });
+                },
+                pause: function(event) {
+                    var _this = this;
+                    axios.post('/maintenance/pause', {
+                        sourceType: this.sourceType
+                    }).then(function (response) {
+                        _this.msg = response.data.msg;
+                        _this.serviceControlFlag = response.data.serviceControlFlag;
+                    }).catch(function (error) {
+                        alert(error.response);
+                    });
+                },
+                resume: function(event) {
+                    var _this = this;
+                    axios.post('/maintenance/resume', {
+                        sourceType: this.sourceType
+                    }).then(function (response) {
+                        _this.msg = response.data.msg;
+                        _this.serviceControlFlag = response.data.serviceControlFlag;
+                    }).catch(function (error) {
+                        alert(error.response);
+                    });
+                }
+            },
+            watch: {
+                sourceType: function(val) {
+                    var _this = this;
+                    axios.post('/maintenance/check', {
+                        sourceType: this.sourceType
+                    }).then(function (response) {
+                        _this.sourceType = response.data.sourceType
+                        _this.rabbitHost = response.data.rabbitHost;
+                        _this.rabbitPort = response.data.rabbitPort;
+                        _this.rabbitExchange = response.data.rabbitExchange;
+                        _this.rabbitQueue = response.data.rabbitQueue;
+                        _this.rabbitVirtualHost = response.data.rabbitVirtualHost;
+                        _this.rabbitRoutingKey = response.data.rabbitRoutingKey;
+                        _this.rabbitUserId = response.data.rabbitUserId;
+                        _this.rabbitPassword = response.data.rabbitPassword;
+                        _this.msg = response.data.msg;
+                        _this.serviceControlFlag = response.data.serviceControlFlag;
+                    }).catch(function (error) {
+                        alert(error.response);
+                    });
+                }
+            }
+        })
+    </script>
+</html>
