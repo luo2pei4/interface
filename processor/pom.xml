@@ -11,7 +11,7 @@
         <version>1.0</version>
     </parent>
 
-    <artifactId>businessproc</artifactId>
+    <artifactId>processor</artifactId>
 
     <properties>
         <alibaba.druid>1.1.22</alibaba.druid>

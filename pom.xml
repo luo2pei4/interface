@@ -11,7 +11,7 @@
 
     <modules>
         <module>adapter</module>
-        <module>businessproc</module>
+        <module>processor</module>
         <module>common</module>
     </modules>
 
