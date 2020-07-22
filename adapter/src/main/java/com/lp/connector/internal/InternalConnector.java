@@ -12,8 +12,6 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import static java.lang.Thread.sleep;
-
 @Service(value = "internalConnector")
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class InternalConnector {
@@ -44,6 +42,8 @@ public class InternalConnector {
     private String appName;
 
     private String queueName;
+
+    private boolean connected = false;
 
     public void setQueueConfig(String appName) {
 
@@ -90,9 +90,13 @@ public class InternalConnector {
 
             logger.info("添加初始映射......success");
 
+            this.connected = true;
+
         } catch (Exception exception) {
 
             logger.error("创建内部RabbitMQ队列......failed", exception);
+
+            this.connected = false;
 
             return false;
         }
@@ -102,32 +106,30 @@ public class InternalConnector {
         return true;
     }
 
-    public void sendMessage(String message) {
+    public Integer sendMessage(String message) {
 
         try {
 
-            channel.basicPublish(exchangeName, routingKey, true, MessageProperties.TEXT_PLAIN, message.getBytes());
-            logger.info("发送消息到内部RabbitMQ......success");
+            if (channel == null) {
+
+                connect();
+            }
+
+            if (connected) {
+
+                channel.basicPublish(exchangeName, routingKey, true, MessageProperties.TEXT_PLAIN, message.getBytes());
+                logger.info("发送消息到内部RabbitMQ......success");
+
+                return 1;
+            }
 
         } catch (Exception exception) {
 
-            // 关闭内部RabbitMQ连接
+            logger.error("内部消息发送失败.", exception);
             close();
-
-            // 重新连接内部RabbitMQ
-            while (!connect()) {
-
-                try {
-
-                    sleep(5000);
-
-                } catch (Exception e) {
-                }
-            }
-
-            // 递归
-            sendMessage(message);
         }
+
+        return 0;
     }
 
     public void close() {
@@ -136,8 +138,15 @@ public class InternalConnector {
 
             logger.info("关闭内部RabbitMQ连接.");
 
-            connection.close();
-            channel.close();
+            if (connection != null) {
+
+                connection.close();
+            }
+
+            if (channel != null) {
+
+                channel.close();
+            }
 
         } catch (Exception e) {
 
@@ -145,6 +154,7 @@ public class InternalConnector {
 
             connection = null;
             channel = null;
+            this.connected = false;
         }
     }
 }

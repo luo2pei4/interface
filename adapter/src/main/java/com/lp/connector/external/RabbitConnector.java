@@ -40,6 +40,8 @@ public class RabbitConnector {
 
     private boolean connected = false;
 
+    private GetResponse getResponse;
+
     public void setConnectConfig(RabbitConfigBean rabbitConfigBean) {
 
         this.host = rabbitConfigBean.getHost();
@@ -105,7 +107,7 @@ public class RabbitConnector {
 
         try {
 
-            GetResponse getResponse = channel.basicGet(queue, true);
+            getResponse = channel.basicGet(queue, false);
 
             if (getResponse != null) {
 
@@ -146,6 +148,21 @@ public class RabbitConnector {
             channel = null;
             connection = null;
             connected = false;
+        }
+    }
+
+    public void nAcknowledge(boolean acked) {
+
+        try {
+
+            if (getResponse != null) {
+
+                channel.basicNack(getResponse.getEnvelope().getDeliveryTag(), false, acked);
+            }
+
+        } catch (Exception exception) {
+
+            logger.error("向外部RabbitMQ反馈异常", exception);
         }
     }
 

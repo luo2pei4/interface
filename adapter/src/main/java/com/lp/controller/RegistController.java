@@ -41,9 +41,9 @@ public class RegistController {
 			// 获取内存中的注册信息
 			Map<String, JSONObject> parseAppInfoMap = Register.getParseAppInfoMap();
 
-			// 没有应用名称的情况
 			if (StringUtil.isEmpty(appName)) {
 
+				// 没有应用名称的情况
 				jsonObject.put("status", "DOWN");
 				jsonObject.put("message", "没有设置应用名称, 无效的请求.");
 
@@ -69,7 +69,7 @@ public class RegistController {
 				if (internalConnector.connect()) {
 
 					// 保存内部RabbitMQ连接器实例
-					InternalConnectorManagement.addInternalConnector(appName, internalConnector);
+					InternalConnectorManagement.save(appName, internalConnector);
 
 					// 保存注册信息
 					Register.save(appName, jsonObject);

@@ -16,7 +16,7 @@ public class InternalConnectorManagement {
      * @param name
      * @param internalConnector
      */
-    public static void addInternalConnector(String name, InternalConnector internalConnector) {
+    public static void save(String name, InternalConnector internalConnector) {
 
         internalConnectorMap.put(name, internalConnector);
     }

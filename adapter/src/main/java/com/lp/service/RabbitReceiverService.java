@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.lp.bean.config.RabbitConfigBean;
 import com.lp.connector.external.RabbitConnector;
 import com.lp.common.constant.Constants;
+import com.lp.connector.internal.InternalConnector;
 import com.lp.core.InternalConnectorManagement;
 import com.lp.core.KeyAndQueueMapping;
 import com.lp.core.Register;
@@ -114,7 +115,18 @@ public class RabbitReceiverService extends Thread {
 
                             if (!StringUtil.isEmpty(queueName)) {
 
-                                InternalConnectorManagement.getInternalConnector(queueName).sendMessage(msg);
+                                InternalConnector internalConnector = InternalConnectorManagement.getInternalConnector(queueName);
+                                Integer result = internalConnector.sendMessage(msg);
+
+                                // 向内部RabbitMQ发送成功的情况，向外部RabbitMQ发送消息接收反馈消息
+                                if (result.equals(1)) {
+
+                                    rabbitConnector.nAcknowledge(false);
+
+                                } else {
+
+                                    rabbitConnector.nAcknowledge(true);
+                                }
                             }
                         }
 
