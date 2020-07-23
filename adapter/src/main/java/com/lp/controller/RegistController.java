@@ -32,10 +32,12 @@ public class RegistController {
 		if (registInfo != null) {
 
 			String ipAddress = registInfo.getString("ipAddress");
+			String serverPort = registInfo.getString("port");
 			String appName = registInfo.getString("appName");
 
 			logger.info(">>>>>>>>>>>>>>>>>>>> 收到注册请求 <<<<<<<<<<<<<<<<<<<<");
-			logger.info("请求地址: " + ipAddress);
+			logger.info("应用地址: " + ipAddress);
+			logger.info("应用端口: " + serverPort);
 			logger.info("应用名称: " + appName);
 
 			// 获取内存中的注册信息

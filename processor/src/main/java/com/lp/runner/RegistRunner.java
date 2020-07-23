@@ -21,6 +21,12 @@ public class RegistRunner implements ApplicationRunner {
     @Autowired
     private BusinessService businessService;
 
+    @Value("${server.ip}")
+    private String serverIp;
+
+    @Value("${server.port}")
+    private String serverPort;
+
     @Value("${app.name}")
     private String appName;
 
@@ -31,8 +37,8 @@ public class RegistRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) {
 
         JSONObject registInfo = new JSONObject();
-        registInfo.put("ipAddress", "localhost");
-        registInfo.put("port", "12345");
+        registInfo.put("ipAddress", serverIp);
+        registInfo.put("port", serverPort);
         registInfo.put("appName", appName);
         registInfo.put("appStatus", "OK");
 
