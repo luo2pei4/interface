@@ -1,4 +1,5 @@
 # interface
+基于Java11，1.8编译会有错误，需要手动更换POM文件中依赖jar包的版本。
 
 ## adapter用于接收外部消息源的消息
 支持从activemq, rabbitmq和kafka消息中间件接入数据。目前仅支持RabbitMQ<br>
